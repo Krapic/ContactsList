@@ -20,7 +20,6 @@ export default function Counter() {
 
       <Stack horizontal tokens={{ childrenGap: theme.spacing.m }}>
         <PrimaryButton onClick={decrement}>Decrement</PrimaryButton>
-
         <PrimaryButton onClick={increment}>Increment</PrimaryButton>
       </Stack>
     </Stack>
