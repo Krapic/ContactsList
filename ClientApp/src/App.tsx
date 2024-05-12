@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Counter from './components/Counter';
-import FetchData from './components/FetchData';
 import Home from './components/Home';
 import Layout from './components/Layout';
+import Contacts from './components/Contacts';
 
 export default function App() {
   return (
@@ -18,10 +18,11 @@ export default function App() {
           path='/counter'
           element={<Counter />}
         />
-
-        <Route 
-          path='/fetch-data'
-          element={<FetchData />}
+        
+        {/* Dodaj rutu za adresar */}
+        <Route
+          path='/adresar'
+          element={<Contacts />}
         />
       </Routes>
     </Layout>
