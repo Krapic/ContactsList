@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTheme, Stack, Text } from '@fluentui/react';
+import { PanelFooterExample } from './Panel';
 
 const theme = getTheme();
 
@@ -42,6 +43,7 @@ function Contacts() {
   return (
     <Stack styles={{ root: { padding: theme.spacing.m } }}>
       <div>
+        <PanelFooterExample/>
         <Text variant='xLarge'>Moji kontakti: </Text>
         {contacts.map((contact, index) => (
           <p key={index}>
@@ -52,4 +54,5 @@ function Contacts() {
     </Stack>
   );
 }
+
 export default Contacts;
