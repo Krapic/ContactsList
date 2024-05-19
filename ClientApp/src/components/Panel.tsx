@@ -2,11 +2,9 @@ import * as React from 'react';
 import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Panel, PanelType } from '@fluentui/react/lib/Panel';
 import { useBoolean } from '@fluentui/react-hooks';
-import { TextFieldBasicExample } from './TextField';
-import { initializeIcons } from '@fluentui/font-icons-mdl2';
+import { TextField } from '@fluentui/react';
 
 const buttonStyles = { root: { marginRight: 8 } };
-initializeIcons();
 
 export const PanelFooterExample: React.FunctionComponent = () => {
   const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
@@ -47,6 +45,7 @@ export const PanelFooterExample: React.FunctionComponent = () => {
     // Dismiss the panel
     dismissPanel();
     console.log('Data saved successfully');
+    //window.location.reload();
   };
 
   return (
@@ -67,13 +66,13 @@ export const PanelFooterExample: React.FunctionComponent = () => {
         )}
       >
         <p>Ime</p>
-        <TextFieldBasicExample value={firstName} onChange={setFirstName} />
+        <TextField label="Required" value={firstName} onChange={(event, newValue) => setFirstName(newValue || '')} />
         <p>Prezime</p>
-        <TextFieldBasicExample value={lastName} onChange={setLastName} />
+        <TextField label="Required" value={lastName} onChange={(event, newValue) => setLastName(newValue || '')} />
         <p>Email</p>
-        <TextFieldBasicExample value={email} onChange={setEmail} />
+        <TextField label="Required" value={email} onChange={(event, newValue) => setEmail(newValue || '')} />
         <p>Telefon</p>
-        <TextFieldBasicExample value={phone} onChange={setPhone} />
+        <TextField label="Required" value={phone} onChange={(event, newValue) => setPhone(newValue || '')} />
       </Panel>
     </div>
   );

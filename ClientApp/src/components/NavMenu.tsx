@@ -27,15 +27,6 @@ export default function NavMenu() {
       }}
     >
       <Link to='/' style={linkStyle}>Adresar</Link>
-
-      <Stack horizontal verticalAlign='center' tokens={{ childrenGap: theme.spacing.m }}>
-        <Link to='/' style={linkStyle}>Home</Link>
-
-        <Link to='/counter' style={linkStyle}>Counter</Link>
-
-        {/* Dodaj link za adresar */}
-        <Link to='/adresar' style={linkStyle}>Adresar</Link>
-      </Stack>
     </Stack>
   );
 }
