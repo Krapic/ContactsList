@@ -45,7 +45,7 @@ export const PanelFooterExample: React.FunctionComponent = () => {
     // Dismiss the panel
     dismissPanel();
     console.log('Data saved successfully');
-    //window.location.reload();
+    window.location.reload();
   };
 
   return (
