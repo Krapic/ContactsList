@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getTheme, IconButton, Stack, Text, IIconProps } from '@fluentui/react';
+import { getTheme, IconButton, Stack, Text, IIconProps, DefaultButton } from '@fluentui/react';
 import { PanelFooterExample } from './Panel';
-import { useId } from '@fluentui/react-hooks';
-import { TooltipHost, ITooltipHostStyles } from '@fluentui/react/lib/Tooltip';
+import { useBoolean } from '@fluentui/react-hooks';
+import { TooltipHost } from '@fluentui/react/lib/Tooltip';
+import { Panel, PanelType } from '@fluentui/react/lib/Panel';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const theme = getTheme();
 
@@ -12,11 +14,19 @@ interface Contact {
   surname: string;
   email: string;
   phone: string;
+  address: string;
+  type: string;
 }
 
 function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const editIcon: IIconProps = { iconName: 'EditContact' };
+  const deleteIcon: IIconProps = { iconName: 'Delete' };
+
   useEffect(() => {
     fetch("https://localhost:7037/api/Contacts/GetAll", {
       method: "GET",
@@ -33,37 +43,66 @@ function Contacts() {
     })
     .then((data) => {
       setContacts(data.value);
+      const contact = data.value.find((contact: Contact) => contact.id === Number(id));
+      if (contact) {
+        setSelectedContact(contact);
+        openPanel();
+      } else {
+        setSelectedContact(null);
+        navigate('/');
+        dismissPanel();
+        
+      }
     })
     .catch((error) => {
       console.error('Error:', error);
     });
-  }, []); 
-
-  const tooltipId = useId('tooltip');
-  const calloutProps = { gapSpace: 0 };
-  const hostStyles: Partial<ITooltipHostStyles> = { root: { display: 'inline-block' } };
-  const emojiIcon: IIconProps = { iconName: 'Delete' };
+  }, [dismissPanel, id, navigate, openPanel]); 
   
   return (
     <Stack styles={{ root: { padding: theme.spacing.m } }}>
       <div>
         <PanelFooterExample/>
         <Text variant='xLarge'>Moji kontakti: </Text>
-        {contacts.map((contact, index) => (
+        {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
           <div key={index} style={{ marginBottom: theme.spacing.s1 }}>
-            <Text>{contact.name} {contact.surname} - {contact.email} - {contact.phone}</Text>
+            <DefaultButton onClick={() => { setSelectedContact(contact); openPanel(); }} styles={{ root: { width: 300 } }} >{contact.name} {contact.surname}</DefaultButton>
+            {selectedContact && 
+              <Panel
+                  isOpen={isOpen}
+                  onDismiss={() => { setSelectedContact(null); dismissPanel(); }}
+                  headerText="Podaci o kontaktu: "
+                  closeButtonAriaLabel="Close"
+                  isFooterAtBottom={true}
+                  type={PanelType.smallFluid}
+                  onRenderFooterContent={() => (
+                    <div>
+                      <DefaultButton onClick={() => { setSelectedContact(null); dismissPanel(); }}>Zatvori</DefaultButton>
+                    </div>
+                  )}
+              >
+                <p style={{ fontSize: '20px' }}>Ime: {selectedContact.name} {selectedContact.surname}</p>
+                <p style={{ fontSize: '20px' }}>Email: {selectedContact.email}</p>
+                <p style={{ fontSize: '20px' }}>Telefon: {selectedContact.phone}</p>
+                <p style={{ fontSize: '20px' }}>Adresa: {selectedContact.address}</p>
+                <p style={{ fontSize: '20px' }}>Grupa: {selectedContact.type}</p>
+              </Panel>
+            }
+            <TooltipHost content="Uredi kontakt">
+              <IconButton
+                iconProps={editIcon}
+                title="Edit"
+                ariaLabel="Edit"
+              />
+            </TooltipHost>
             {/* Ikona za brisanje kontakta */
             /* Ovdje se koristi TooltipHost komponenta za prikazivanje tooltipa */
             /* Kada korisnik klikne na ikonu, poziva se API za brisanje kontakta */}
             <TooltipHost
-              content="Obriši kontakt"
-              id={tooltipId}
-              calloutProps={calloutProps}
-              styles={hostStyles}
-              aria-describedby={tooltipId}>
+              content="Obriši kontakt">
                 {/* IconButton komponenta se koristi za prikaz ikone */
                 /* Klikom na ikonu poziva se funkcija za brisanje kontakta */}
-              <IconButton iconProps={emojiIcon} aria-label="Obriši kontakt" onClick={() => {
+              <IconButton iconProps={deleteIcon} onClick={() => {
                 fetch(`https://localhost:7037/api/Contacts/Delete?id=${contact.id}`, {
                   method: "DELETE",
                   headers: {

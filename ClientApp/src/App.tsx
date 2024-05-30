@@ -11,6 +11,10 @@ export default function App() {
           index
           element={<Contacts />}
         />
+        <Route
+          path="/:id"
+          element={<Contacts />}
+        />
       </Routes>
     </Layout>
   ); 
