@@ -16,5 +16,7 @@ namespace incubis_assignment
         public string? Email { get; set; }
         [Required]
         public string? Phone { get; set; }
+        public string? Address { get; set; }
+        public string? Type { get; set; }
     }
 }
