@@ -71,6 +71,8 @@ function Contacts() {
     dismissPanel();
   };
 
+  const navigateContact = useNavigate();
+
   return (
     <Stack styles={{ root: { padding: theme.spacing.m } }}>
       <div>
@@ -78,7 +80,7 @@ function Contacts() {
         <Text variant='xLarge'>Moji kontakti: </Text>
         {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
           <div key={index} style={{ marginBottom: theme.spacing.s1 }}>
-            <DefaultButton onClick={() => { setSelectedContact(contact); setIsEditing(false); openPanel(); }} styles={{ root: { width: 300 } }} >{contact.name} {contact.surname}</DefaultButton>
+            <DefaultButton onClick={() => { setSelectedContact(contact); setIsEditing(false); openPanel(); navigateContact(`/${contact.id}`)}} styles={{ root: { width: 300 } }} >{contact.name} {contact.surname}</DefaultButton>
             {selectedContact &&
               <Panel
                 isOpen={isOpen}
