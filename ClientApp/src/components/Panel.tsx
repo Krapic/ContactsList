@@ -17,6 +17,17 @@ export const PanelFooterExample: React.FunctionComponent = () => {
   const [phone, setPhone] = React.useState('');
   const [address, setAddress] = React.useState('');
   const [type, setType] = React.useState('');
+  
+  type Contact = {
+    name: string;
+    surname: string;
+    email: string;
+    phone: string;
+    address: string;
+    type: string;
+  };
+  
+  const [, setContacts] = React.useState<Contact[]>([]);
 
   const saveDataAndDismiss = () => {
     // Log the values of the state variables
@@ -41,23 +52,32 @@ export const PanelFooterExample: React.FunctionComponent = () => {
         address: address,
         type: type
       })
-    })
+    }).then(response => response.json())
+    .then(() => {
+      // Fetch the updated list of contacts from the server
+      fetch("https://localhost:7037/api/Contacts/GetAll")
+        .then(response => response.json())
+        .then(updatedContacts => {
+          // Update the contacts state variable with the updated list
+          setContacts(updatedContacts);
+    
+          // Clear the text fields
+          setFirstName('');
+          setLastName('');
+          setEmail('');
+          setPhone('');
+          setAddress('');
+          setType('');
+    
+          // Dismiss the panel
+          dismissPanel();
+          console.log('Data saved successfully');
 
-    // Clear the text fields
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setPhone('');
-    setAddress('');
-    setType('');
-
-    // Dismiss the panel
-    dismissPanel();
-    console.log('Data saved successfully');
-    setTimeout(() => {
-      console.log("Timeout za spremanje kontakta...");
-    }, 500)
-    window.location.reload();
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        });
+    });
   };
 
   const dropdownStyles: Partial<IDropdownStyles> = {
