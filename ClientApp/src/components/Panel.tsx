@@ -3,7 +3,7 @@ import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Panel, PanelType } from '@fluentui/react/lib/Panel';
 import { useBoolean } from '@fluentui/react-hooks';
 import { TextField } from '@fluentui/react';
-import { Dropdown, IDropdownStyles, IDropdownOption } from '@fluentui/react/lib/Dropdown';
+import { ComboBox, IComboBox, IComboBoxOption } from '@fluentui/react/lib/ComboBox';
 
 const buttonStyles = { root: { marginRight: 8 } };
 
@@ -80,15 +80,27 @@ export const PanelFooterExample: React.FunctionComponent = () => {
     });
   };
 
-  const dropdownStyles: Partial<IDropdownStyles> = {
-    dropdown: { width: 595 },
-  };
-  
-  const options: IDropdownOption[] = [
+  const comboBoxRef = React.useRef<IComboBox>(null);
+
+  const [options, setOptions] = React.useState<IComboBoxOption[]>([
     { key: 'Kuća', text: 'Kuća' },
     { key: 'Posao', text: 'Posao' },
-    { key: 'Ostalo', text: 'Ostalo' },
-  ];
+    { key: 'Obitelj', text: 'Obitelj' },
+    { key: 'Prijatelj', text: 'Prijatelj' },
+    { key: 'Škola', text: 'Škola' },
+    { key: 'Fakultet', text: 'Fakultet' },
+    { key: 'Hitni kontakt', text: 'Hitni kontakt' },
+    { key: 'Servis i usluga', text: 'Servis i usluga' },
+    { key: 'Organizacija i udruženje', text: 'Organizacija i udruženje' }
+  ]);
+
+  const handleComboBoxChange = (event: React.FormEvent<IComboBox>, option?: IComboBoxOption, index?: number, value?: string) => {
+    setType(value || '');
+
+    if (value && !options.find(option => option.text === value)) {
+      setOptions(prevOptions => [...prevOptions, { key: value, text: value }]);
+    }
+  };
 
   return (
     <div>
@@ -112,12 +124,16 @@ export const PanelFooterExample: React.FunctionComponent = () => {
         <TextField label="Email" value={email} onChange={(event, newValue) => setEmail(newValue || '')} />
         <TextField label="Telefon" value={phone} onChange={(event, newValue) => setPhone(newValue || '')} />
         <TextField label="Adresa" value={address} onChange={(event, newValue) => setAddress(newValue || '')} />
-        <Dropdown
-          label="Grupa"
-          placeholder='Odaberi grupu'
+        <ComboBox
+          label="Kategorija"
+          placeholder='Odaberi kategoriju ili upiši novu...'
           options={options}
-          styles={dropdownStyles}
-          onChange={(event, option) => setType(option ? String(option.key) : '')}
+          allowFreeform
+          autoComplete='on'
+          componentRef={comboBoxRef}
+          dropdownMaxWidth={595}
+          useComboBoxAsMenuWidth
+          onChange={handleComboBoxChange}
         />
       </Panel>
     </div>
