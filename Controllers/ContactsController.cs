@@ -30,7 +30,12 @@ namespace incubis_assignment.Controllers
                 if (contactInDb == null)
                     return new JsonResult(NotFound());
 
-                contactInDb = contact;
+                contactInDb.Name = contact.Name;
+                contactInDb.Surname = contact.Surname;
+                contactInDb.Email = contact.Email;
+                contactInDb.Phone = contact.Phone;
+                contactInDb.Address = contact.Address;
+                contactInDb.Type = contact.Type;
             }
 
             _context.SaveChanges();
@@ -71,6 +76,28 @@ namespace incubis_assignment.Controllers
         {
             var result = _context.Contacts.ToList();
             return new JsonResult(Ok(result));
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateContact(int id, [FromBody] Contacts updatedContact)
+        {
+            var contact = _context.Contacts.FirstOrDefault(c => c.Id == id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            contact.Name = updatedContact.Name;
+            contact.Surname = updatedContact.Surname;
+            contact.Email = updatedContact.Email;
+            contact.Phone = updatedContact.Phone;
+            contact.Address = updatedContact.Address;
+            contact.Type = updatedContact.Type;
+
+            _context.Contacts.Update(contact);
+            _context.SaveChanges();
+
+            return NoContent();
         }
 
     }

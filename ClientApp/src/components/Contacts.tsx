@@ -5,6 +5,7 @@ import { useBoolean } from '@fluentui/react-hooks';
 import { TooltipHost } from '@fluentui/react/lib/Tooltip';
 import { Panel, PanelType } from '@fluentui/react/lib/Panel';
 import { useParams, useNavigate } from 'react-router-dom';
+import EditContactForm from './EditContactForm';
 
 const theme = getTheme();
 
@@ -21,6 +22,7 @@ interface Contact {
 function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -51,41 +53,56 @@ function Contacts() {
         setSelectedContact(null);
         navigate('/');
         dismissPanel();
-        
       }
     })
     .catch((error) => {
       console.error('Error:', error);
     });
-  }, [dismissPanel, id, navigate, openPanel]); 
-  
+  }, [dismissPanel, id, navigate, openPanel]);
+
+  const handleUpdate = (updatedContact: Contact) => {
+    setContacts(contacts.map(contact => contact.id === updatedContact.id ? updatedContact : contact));
+    setSelectedContact(updatedContact);
+  };
+
+  const handleClose = () => {
+    setSelectedContact(null);
+    setIsEditing(false);
+    dismissPanel();
+  };
+
   return (
     <Stack styles={{ root: { padding: theme.spacing.m } }}>
       <div>
-        <PanelFooterExample/>
+        <PanelFooterExample />
         <Text variant='xLarge'>Moji kontakti: </Text>
         {contacts.sort((a, b) => a.name.localeCompare(b.name)).map((contact, index) => (
           <div key={index} style={{ marginBottom: theme.spacing.s1 }}>
-            <DefaultButton onClick={() => { setSelectedContact(contact); openPanel(); }} styles={{ root: { width: 300 } }} >{contact.name} {contact.surname}</DefaultButton>
-            {selectedContact && 
+            <DefaultButton onClick={() => { setSelectedContact(contact); setIsEditing(false); openPanel(); }} styles={{ root: { width: 300 } }} >{contact.name} {contact.surname}</DefaultButton>
+            {selectedContact &&
               <Panel
-                  isOpen={isOpen}
-                  onDismiss={() => { setSelectedContact(null); dismissPanel(); }}
-                  headerText="Podaci o kontaktu: "
-                  closeButtonAriaLabel="Close"
-                  isFooterAtBottom={true}
-                  type={PanelType.smallFluid}
-                  onRenderFooterContent={() => (
-                    <div>
-                      <DefaultButton onClick={() => { setSelectedContact(null); dismissPanel(); }}>Zatvori</DefaultButton>
-                    </div>
-                  )}
+                isOpen={isOpen}
+                headerText={isEditing ? "Uredi kontakt" : "Podaci o kontaktu"}
+                closeButtonAriaLabel="Zatvori"
+                isFooterAtBottom={true}
+                type={PanelType.smallFluid}
+                onRenderFooterContent={() => (
+                  <div>
+                    <DefaultButton onClick={handleClose}>Zatvori</DefaultButton>
+                  </div>
+                )}
               >
-                <p style={{ fontSize: '20px' }}>Ime: {selectedContact.name} {selectedContact.surname}</p>
-                <p style={{ fontSize: '20px' }}>Email: {selectedContact.email}</p>
-                <p style={{ fontSize: '20px' }}>Telefon: {selectedContact.phone}</p>
-                <p style={{ fontSize: '20px' }}>Adresa: {selectedContact.address}</p>
-                <p style={{ fontSize: '20px' }}>Grupa: {selectedContact.type}</p>
+                {isEditing ? (
+                  <EditContactForm contact={selectedContact} onUpdate={handleUpdate} onClose={handleClose}/>
+                ) : (
+                  <div>
+                    <p style={{ fontSize: '20px' }}>Ime: {selectedContact.name} {selectedContact.surname}</p>
+                    <p style={{ fontSize: '20px' }}>Email: {selectedContact.email}</p>
+                    <p style={{ fontSize: '20px' }}>Telefon: {selectedContact.phone}</p>
+                    <p style={{ fontSize: '20px' }}>Adresa: {selectedContact.address}</p>
+                    <p style={{ fontSize: '20px' }}>Grupa: {selectedContact.type}</p>
+                  </div>
+                )}
               </Panel>
             }
             <TooltipHost content="Uredi kontakt">
@@ -93,34 +110,30 @@ function Contacts() {
                 iconProps={editIcon}
                 title="Edit"
                 ariaLabel="Edit"
+                onClick={() => { setSelectedContact(contact); setIsEditing(true); openPanel(); }}
               />
             </TooltipHost>
-            {/* Ikona za brisanje kontakta */
-            /* Ovdje se koristi TooltipHost komponenta za prikazivanje tooltipa */
-            /* Kada korisnik klikne na ikonu, poziva se API za brisanje kontakta */}
-            <TooltipHost
-              content="Obriši kontakt">
-                {/* IconButton komponenta se koristi za prikaz ikone */
-                /* Klikom na ikonu poziva se funkcija za brisanje kontakta */}
-              <IconButton iconProps={deleteIcon} onClick={() => {
-                fetch(`https://localhost:7037/api/Contacts/Delete?id=${contact.id}`, {
-                  method: "DELETE",
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                  }
-                })
-                .then(response => response.json())
-                .then(data => {
-                  // Ako je uspješno obrisan kontakt, ažuriraj stanje
-                  setContacts(contacts.filter(c => c.id !== contact.id));
-                })
-                .catch(error => {
-                  console.error('Error:', error);
-                });
-              }}>
-                Delete
-              </IconButton>
+            <TooltipHost content="Obriši kontakt">
+              <IconButton
+                iconProps={deleteIcon}
+                onClick={() => {
+                  fetch(`https://localhost:7037/api/Contacts/Delete?id=${contact.id}`, {
+                    method: "DELETE",
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                    }
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                    // Ako je uspješno obrisan kontakt, ažuriraj stanje
+                    setContacts(contacts.filter(c => c.id !== contact.id));
+                  })
+                  .catch(error => {
+                    console.error('Error:', error);
+                  });
+                }}
+              />
             </TooltipHost>
           </div>
         ))}
