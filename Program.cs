@@ -41,9 +41,9 @@ if (builder.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAuthorization();
 app.UseRouting();
 app.UseCors("all");
+app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
